@@ -23,7 +23,7 @@
  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * MCPP_OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
 
@@ -480,7 +480,7 @@ static char *   replace(
         dump_unget( "replace entry");
     }
     if ((mcpp_debug & MACRO_CALL) && in_if)
-        mcpp_fprintf( OUT, "/*%s*/", defp->name);
+        mcpp_fprintf( MCPP_OUT, "/*%s*/", defp->name);
 
     enable_trace_macro = trace_macro && defp->nargs != DEF_PRAGMA;
     if (enable_trace_macro) {
@@ -576,7 +576,7 @@ static char *   replace(
 
     catbuf = xmalloc( (size_t) (NMACWORK + IDMAX));
     if (mcpp_debug & EXPAND) {
-        mcpp_fprintf( DBG, "(%s)", defp->name);
+        mcpp_fprintf( MCPP_DBG, "(%s)", defp->name);
         dump_string( "prescan entry", defp->repl);
     }
     if (prescan( defp, (const char **) arglist, catbuf, catbuf + NMACWORK)
@@ -595,14 +595,14 @@ static char *   replace(
     catbuf = xrealloc( catbuf, strlen( catbuf) + 1);
                                             /* Use memory sparingly */
     if (mcpp_debug & EXPAND) {
-        mcpp_fprintf( DBG, "(%s)", defp->name);
+        mcpp_fprintf( MCPP_DBG, "(%s)", defp->name);
         dump_string( "prescan exit", catbuf);
     }
 
     if (nargs > 0) {    /* Function-like macro with any argument    */
         expbuf = xmalloc( (size_t) (NMACWORK + IDMAX));
         if (mcpp_debug & EXPAND) {
-            mcpp_fprintf( DBG, "(%s)", defp->name);
+            mcpp_fprintf( MCPP_DBG, "(%s)", defp->name);
             dump_string( "substitute entry", catbuf);
         }
         out_p = substitute( defp, (const char **) arglist, catbuf, expbuf
@@ -614,7 +614,7 @@ static char *   replace(
         expbuf = xrealloc( expbuf, strlen( expbuf) + 1);
                                             /* Use memory sparingly */
         if (mcpp_debug & EXPAND) {
-            mcpp_fprintf( DBG, "(%s)", defp->name);
+            mcpp_fprintf( MCPP_DBG, "(%s)", defp->name);
             dump_string( "substitute exit", expbuf);
         }
     } else {                                /* Object-like macro or */
@@ -1454,7 +1454,7 @@ static char *   substitute(
         if (c == MAC_PARM) {                /* Formal parameter     */
             c = *in++ & UCHARMAX;           /* Parameter number     */
             if (mcpp_debug & EXPAND) {
-                mcpp_fprintf( DBG, " (expanding arg[%d])", c);
+                mcpp_fprintf( MCPP_DBG, " (expanding arg[%d])", c);
                 dump_string( NULL, arglist[ c - 1]);
             }
             if ((out = rescan( NULL, arglist[ c - 1], out, out_end))
@@ -1499,7 +1499,7 @@ static char *   rescan(
     char *  mac_arg_start = NULL;
 
     if (mcpp_debug & EXPAND) {
-        mcpp_fprintf( DBG, "rescan_level--%d (%s) "
+        mcpp_fprintf( MCPP_DBG, "rescan_level--%d (%s) "
                 , rescan_level + 1, outer ? outer->name : "<arg>");
         dump_string( "rescan entry", in);
     }
@@ -1650,7 +1650,7 @@ static char *   rescan(
     }
     enable_repl( outer, TRUE);      /* Enable macro for later text  */
     if (mcpp_debug & EXPAND) {
-        mcpp_fprintf( DBG, "rescan_level--%d (%s) "
+        mcpp_fprintf( MCPP_DBG, "rescan_level--%d (%s) "
                 , rescan_level + 1, outer ? outer->name : "<arg>");
         dump_string( "rescan exit", out);
     }
@@ -2274,9 +2274,9 @@ static void dump_args(
 {
     int     i;
 
-    mcpp_fprintf( DBG, "dump of %d actual arguments %s\n", nargs, why);
+    mcpp_fprintf( MCPP_DBG, "dump of %d actual arguments %s\n", nargs, why);
     for (i = 0; i < nargs; i++) {
-        mcpp_fprintf( DBG, "arg[%d]", i + 1);
+        mcpp_fprintf( MCPP_DBG, "arg[%d]", i + 1);
         dump_string( NULL, arglist[ i]);
     }
 }

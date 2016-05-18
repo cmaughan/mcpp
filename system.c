@@ -349,7 +349,7 @@ opt_search: ;
 
         case 'D':                           /* Define symbol        */
             if (def_cnt >= MAX_DEF) {
-                mcpp_fputs( "Too many -D options.\n", ERR);
+                mcpp_fputs( "Too many -D options.\n", MCPP_ERR);
                 longjmp( error_exit, -1);
             }
             def_list[ def_cnt++] = mcpp_optarg;
@@ -385,7 +385,7 @@ opt_search: ;
 
         case 'U':                           /* Undefine macro       */
             if (undef_cnt >= MAX_UNDEF) {
-                mcpp_fputs( "Too many -U options.\n", ERR);
+                mcpp_fputs( "Too many -U options.\n", MCPP_ERR);
                 longjmp( error_exit, -1);
             }
             undef_list[ undef_cnt++] = mcpp_optarg;
@@ -454,7 +454,7 @@ static void version( void)
 
     const char **   mpp = mes;
     while (*mpp)
-        mcpp_fputs( *mpp++, ERR);
+        mcpp_fputs( *mpp++, MCPP_ERR);
 }
 
 static void usage(
@@ -495,11 +495,11 @@ static void usage(
     const char * const *    mpp = mes;
 
     if (opt != '?')
-        mcpp_fprintf( ERR, illegopt, opt, mcpp_optarg ? mcpp_optarg : null);
+        mcpp_fprintf( MCPP_ERR, illegopt, opt, mcpp_optarg ? mcpp_optarg : null);
     version();
     mes[ 1] = argv0;
     while (*mpp)
-        mcpp_fputs( *mpp++, ERR);
+        mcpp_fputs( *mpp++, MCPP_ERR);
     longjmp( error_exit, -1);
 }
 
@@ -600,12 +600,12 @@ static void     chk_opts(
         incompat = TRUE;
     if ((mcpp_debug & MACRO_CALL)
                 && option_flags.c) {
-            mcpp_fputs( "Disabled -K option.\n", ERR);
+            mcpp_fputs( "Disabled -K option.\n", MCPP_ERR);
             mcpp_debug &= ~MACRO_CALL;
             /* -a and -C options do not co-exist with -K    */
     }
     if (incompat) {
-        mcpp_fputs( "Incompatible options are specified.\n", ERR);
+        mcpp_fputs( "Incompatible options are specified.\n", MCPP_ERR);
         usage( '?');
     }
 
@@ -1019,7 +1019,7 @@ static char *   norm_path(
     }
     if (inf) {
         if (slbuf2[ 0])
-            mcpp_fprintf( DBG, "Dereferenced \"%s%s\" to \"%s\"\n"
+            mcpp_fprintf( MCPP_DBG, "Dereferenced \"%s%s\" to \"%s\"\n"
                     , dir, fname ? fname : null, slbuf1);
     }
 #endif
@@ -1159,7 +1159,7 @@ static char *   norm_path(
         bsl2sl( debug_buf);
 #endif
         if (! str_eq( debug_buf, norm_name))
-            mcpp_fprintf( DBG, "Normalized the path \"%s\" to \"%s\"\n"
+            mcpp_fprintf( MCPP_DBG, "Normalized the path \"%s\" to \"%s\"\n"
                     , debug_buf, norm_name);
     }
 
@@ -1229,7 +1229,7 @@ static void     undef_macros( void)
         if (look_id( name) != NULL)
             undefine( name);
         else if (warn_level & 8)
-            mcpp_fprintf( ERR, "\"%s\" wasn't defined\n", name);
+            mcpp_fprintf( MCPP_ERR, "\"%s\" wasn't defined\n", name);
     }
 }
 
@@ -1278,7 +1278,7 @@ void    put_depend(
                 cerror( "Too long dependency line"          /* _E_  */
                         , NULL, 0L, NULL);
                 if (fp == fp_out)
-                    mcpp_fputs( output, OUT);
+                    mcpp_fputs( output, MCPP_OUT);
                 else
                     fputs( output, fp);
                 return;
@@ -1307,7 +1307,7 @@ void    put_depend(
             }
         }
         if (fp == fp_out) { /* To the same path with normal preprocessing   */
-            mcpp_fputs( output, OUT);
+            mcpp_fputs( output, MCPP_OUT);
         } else {        /* To the file specified by -MF, -MD, -MMD options  */
             fputs( output, fp);
             fclose( fp);
@@ -1581,7 +1581,7 @@ static int  open_include(
                 || (**(infile->dirp) != EOS);
     }
     if (mcpp_debug & PATH)
-        mcpp_fprintf( DBG, "filename: %s\n", filename);
+        mcpp_fprintf( MCPP_DBG, "filename: %s\n", filename);
 
     if ((searchlocal && ((search_rule & CURRENT) || !has_dir)) || full_path) {
         /*
@@ -1715,7 +1715,7 @@ static int  open_file(
     errno = 0;      /* Clear errno possibly set by path searching   */
     {
         if (mcpp_debug & PATH)
-            mcpp_fprintf( DBG, "Searching %s%s%s\n", *dirp
+            mcpp_fprintf( MCPP_DBG, "Searching %s%s%s\n", *dirp
                     , src_dir ? src_dir : null, filename);
     }
     /* src_dir is usually NULL.  This is specified to   */
@@ -1745,7 +1745,7 @@ static int  open_file(
 #else
             if (max_open == 0)
 #endif
-                mcpp_fprintf( DBG,
+                mcpp_fprintf( MCPP_DBG,
     "#include nest reached at the maximum of system: %d, returned errno: %d\n"
                     , include_nest, errno);
         }
@@ -1977,13 +1977,13 @@ void    sharp(
     sh_file = file;
     sh_line = line;
     if (keep_comments)
-        mcpp_fputc( '\n', OUT);         /* Ensure to be on line top */
+        mcpp_fputc( '\n', MCPP_OUT);         /* Ensure to be on line top */
     if (std_line_prefix)
-        mcpp_fprintf( OUT, "#line %ld", line);
+        mcpp_fprintf( MCPP_OUT, "#line %ld", line);
     else
-        mcpp_fprintf( OUT, "%s%ld", LINE_PREFIX, line);
+        mcpp_fprintf( MCPP_OUT, "%s%ld", LINE_PREFIX, line);
     cur_file( file, sharp_file, flag);
-    mcpp_fputc( '\n', OUT);
+    mcpp_fputc( '\n', MCPP_OUT);
 sharp_exit:
     wrong_line = FALSE;
 }
@@ -2020,7 +2020,7 @@ static void cur_file(
             free( sharp_filename);
         sharp_filename = save_string( name);
     }
-    mcpp_fprintf( OUT, " \"%s\"", name);
+    mcpp_fprintf( MCPP_OUT, " \"%s\"", name);
 }
 
 #if SYS_FAMILY == SYS_WIN
@@ -2170,7 +2170,7 @@ void    do_pragma( void)
                 dump_def( TRUE, FALSE); /* #pragma MCPP put_defines */
         } else if (str_eq( identifier, "preprocess")) {
             if (! is_junk())            /* #pragma MCPP preprocess  */
-                mcpp_fputs( "#pragma MCPP preprocessed\n", OUT);
+                mcpp_fputs( "#pragma MCPP preprocessed\n", MCPP_OUT);
                     /* Just putout the directive    */
         } else if (str_eq( identifier, "preprocessed")) {
             if (! is_junk()) {          /* #pragma MCPP preprocessed*/
@@ -2206,8 +2206,8 @@ void    do_pragma( void)
 
     sharp( NULL, 0);    /* Synchronize line number before output    */
     if (! no_output) {
-        mcpp_fputs( "#pragma ", OUT);
-        mcpp_fputs( bp, OUT);           /* Line is put out          */
+        mcpp_fputs( "#pragma ", MCPP_OUT);
+        mcpp_fputs( bp, MCPP_OUT);           /* Line is put out          */
     }
 skip_nl: /* Don't use skip_nl() which skips to the newline in source file */
     while (get_ch() != '\n')
@@ -2256,7 +2256,7 @@ static int  included(
         if (inc->len == fnamelen && str_case_eq( inc->name, fullname)) {
             /* Already included */
             if (mcpp_debug & PATH)
-                mcpp_fprintf( DBG, "Once included \"%s\"\n", fullname);
+                mcpp_fprintf( MCPP_DBG, "Once included \"%s\"\n", fullname);
             return  TRUE;
         }
     }
@@ -2402,11 +2402,11 @@ static void do_preprocessed( void)
 #if STD_LINE_PREFIX == FALSE
         if (memcmp( lbuf, "#line ", 6) == 0) {
             strcpy( arg, lbuf + 6);
-            mcpp_fputs( conv, OUT);
+            mcpp_fputs( conv, MCPP_OUT);
         } else
 #endif
         {
-            mcpp_fputs( lbuf, OUT);
+            mcpp_fputs( lbuf, MCPP_OUT);
         }
     }
     if (! str_eq( lbuf, "/* Currently defined macros. */\n"))
@@ -2553,14 +2553,14 @@ static void dump_path( void)
     const char *    inc_dir;
     const char *    dir = "./";
 
-    mcpp_fputs( "Include paths are as follows --\n", DBG);
+    mcpp_fputs( "Include paths are as follows --\n", MCPP_DBG);
     for (incptr = incdir; incptr < incend; incptr++) {
         inc_dir = *incptr;
         if (*inc_dir == '\0')
             inc_dir = dir;
-        mcpp_fprintf( DBG, "    %s\n", inc_dir);
+        mcpp_fprintf( MCPP_DBG, "    %s\n", inc_dir);
     }
-    mcpp_fputs( "End of include path list.\n", DBG);
+    mcpp_fputs( "End of include path list.\n", MCPP_DBG);
 }
 
 /*
@@ -2572,10 +2572,10 @@ static void dump_path( void)
 /* Based on the public-domain-software released by AT&T in 1985.    */
 
 #define OPTERR( s, c)   if (mcpp_opterr) {  \
-    mcpp_fputs( argv[0], ERR);  \
-    mcpp_fputs( s, ERR);        \
-    mcpp_fputc( c, ERR);        \
-    mcpp_fputc( '\n', ERR);     \
+    mcpp_fputs( argv[0], MCPP_ERR);  \
+    mcpp_fputs( s, MCPP_ERR);        \
+    mcpp_fputc( c, MCPP_ERR);        \
+    mcpp_fputc( '\n', MCPP_ERR);     \
     }
 
 static int  mcpp_getopt(

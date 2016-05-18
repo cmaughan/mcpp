@@ -105,7 +105,7 @@ void    directive( void)
 
     in_directive = TRUE;
     if (keep_comments) {
-        mcpp_fputc( '\n', OUT);     /* Possibly flush out comments  */
+        mcpp_fputc( '\n', MCPP_OUT);     /* Possibly flush out comments  */
         newlines--;
     }
     c = skip_ws();
@@ -208,10 +208,10 @@ void    directive( void)
 ifdo:
         c = do_if( hash, tp);
         if (mcpp_debug & IF) {
-            mcpp_fprintf( DBG
+            mcpp_fprintf( MCPP_DBG
                     , "#if (#elif, #ifdef, #ifndef) evaluate to %s.\n"
                     , compiling ? "TRUE" : "FALSE");
-            mcpp_fprintf( DBG, "line %ld: %s", src_line, infile->buffer);
+            mcpp_fprintf( MCPP_DBG, "line %ld: %s", src_line, infile->buffer);
         }
         if (c == FALSE) {                   /* Error                */
             compiling = FALSE;              /* Skip this group      */
@@ -237,7 +237,7 @@ ifdo:
         }
         if ((mcpp_debug & MACRO_CALL) && (ifptr->stat & WAS_COMPILING)) {
             sync_linenum();
-            mcpp_fprintf( OUT, "/*else %ld:%c*/\n", src_line
+            mcpp_fprintf( MCPP_OUT, "/*else %ld:%c*/\n", src_line
                     , compiling ? 'T' : 'F');   /* Show that #else is seen  */
         }
         break;
@@ -253,7 +253,7 @@ ifdo:
         compiling = (ifptr->stat & WAS_COMPILING);
         if ((mcpp_debug & MACRO_CALL) && compiling) {
             sync_linenum();
-            mcpp_fprintf( OUT, "/*endif %ld*/\n", src_line);
+            mcpp_fprintf( MCPP_OUT, "/*endif %ld*/\n", src_line);
             /* Show that #if block has ended    */
         }
         --ifptr;
@@ -367,7 +367,7 @@ static int  do_if( int hash, const char * directive_name)
     }
     if (mcpp_debug & MACRO_CALL) {
         sync_linenum();
-        mcpp_fprintf( OUT, "/*%s %ld*/", directive_name, src_line);
+        mcpp_fprintf( MCPP_OUT, "/*%s %ld*/", directive_name, src_line);
     }
     if (hash == L_if) {                 /* #if or #elif             */
         unget_ch();
@@ -383,7 +383,7 @@ static int  do_if( int hash, const char * directive_name)
         found = ((defp = look_id( identifier)) != NULL);    /* Look in table*/
         if (mcpp_debug & MACRO_CALL) {
             if (found)
-                mcpp_fprintf( OUT, "/*%s*/", defp->name);
+                mcpp_fprintf( MCPP_OUT, "/*%s*/", defp->name);
         }
     }
     if (found == (hash == L_ifdef)) {
@@ -393,7 +393,7 @@ static int  do_if( int hash, const char * directive_name)
         compiling = FALSE;
     }
     if (mcpp_debug & MACRO_CALL) {
-        mcpp_fprintf( OUT, "/*i %c*/\n", compiling ? 'T' : 'F');
+        mcpp_fprintf( MCPP_OUT, "/*i %c*/\n", compiling ? 'T' : 'F');
         /* Report wheather the directive is evaluated TRUE or FALSE */
     }
     return  TRUE;
@@ -409,7 +409,7 @@ static void sync_linenum( void)
         sharp( NULL, 0);
     } else {
         while (newlines-- > 0)
-            mcpp_fputc('\n', OUT);
+            mcpp_fputc('\n', MCPP_OUT);
     }
     newlines = -1;
 }
@@ -680,7 +680,7 @@ DEFBUF *    do_define(
         e_line_col.col = def_end;
         get_src_location( & e_line_col);
         /* Putout the macro definition information embedded in comment  */
-        mcpp_fprintf( OUT, "/*m%s %ld:%d-%ld:%d*/\n", defp->name
+        mcpp_fprintf( MCPP_OUT, "/*m%s %ld:%d-%ld:%d*/\n", defp->name
                 , s_line_col.line, s_line_col.col
                 , e_line_col.line, e_line_col.col);
         wrong_line = TRUE;                      /* Need #line later */
@@ -1228,7 +1228,7 @@ int undefine(
     *prevp = dp->link;          /* Link the previous and the next   */
     if ((mcpp_debug & MACRO_CALL) && dp->mline) {
         /* Notice this directive unless the macro is predefined     */
-        mcpp_fprintf( OUT, "/*undef %ld*//*%s*/\n", src_line, dp->name);
+        mcpp_fprintf( MCPP_OUT, "/*undef %ld*//*%s*/\n", src_line, dp->name);
         wrong_line = TRUE;
     }
     free( dp);                          /* Delete the definition    */
@@ -1369,12 +1369,12 @@ void    dump_def(
 
     sharp( NULL, 0);    /* Report the current source file & line    */
     if (comment)
-        mcpp_fputs( "/* Currently defined macros. */\n", OUT);
+        mcpp_fputs( "/* Currently defined macros. */\n", MCPP_OUT);
     for (symp = symtab; symp < &symtab[ SBSIZE]; symp++) {
         if ((dp = *symp) != NULL) {
             do {
                 if (K_opt)
-                    mcpp_fprintf( OUT, "/*m%s*/\n", dp->name);
+                    mcpp_fprintf( MCPP_OUT, "/*m%s*/\n", dp->name);
                 else
                     dump_a_def( NULL, dp, FALSE, comment, fp_out);
             } while ((dp = dp->link) != NULL);

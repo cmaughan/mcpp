@@ -264,9 +264,9 @@ typedef struct ifinfo {
 #define compiling       ifstack[0].stat
 
 #define FP2DEST(fp) \
-    (fp == fp_out) ? OUT : \
-    ((fp == fp_err) ? ERR : \
-    ((fp == fp_debug) ? DBG : \
+    (fp == fp_out) ? MCPP_OUT : \
+    ((fp == fp_err) ? MCPP_ERR : \
+    ((fp == fp_debug) ? MCPP_DBG : \
     ((OUTDEST) -1)))
 
 /* VAL_SIGN structure stores information about evaluated number.    */

@@ -20,7 +20,7 @@
  * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTMCPP_ERRUPTION)
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
@@ -102,7 +102,7 @@
  *   macro_line is set to the line number of start of a macro call while
  * expanding the macro, else set to 0.  Line number is remembered for
  * diagnostics of unterminated macro call.  On unterminated macro call
- * macro_line is set to MACRO_ERROR.
+ * macro_line is set to MACRO_MCPP_ERROR.
  */
     long    macro_line = 0L;
 /*
@@ -308,7 +308,7 @@ int     mcpp_lib_main
     /* Open input file, "-" means stdin.    */
     if (in_file != NULL && ! str_eq( in_file, "-")) {
         if ((fp_in = fopen( in_file, "r")) == NULL) {
-            mcpp_fprintf( ERR, "Can't open input file \"%s\".\n", in_file);
+            mcpp_fprintf( MCPP_ERR, "Can't open input file \"%s\".\n", in_file);
             errors++;
             goto  fatal_error_exit;
         }
@@ -318,7 +318,7 @@ int     mcpp_lib_main
     /* Open output file, "-" means stdout.  */
     if (out_file != NULL && ! str_eq( out_file, "-")) {
         if ((fp_out = fopen( out_file, "w")) == NULL) {
-            mcpp_fprintf( ERR, "Can't open output file \"%s\".\n", out_file);
+            mcpp_fprintf( MCPP_ERR, "Can't open output file \"%s\".\n", out_file);
             errors++;
             goto  fatal_error_exit;
         }
@@ -359,7 +359,7 @@ fatal_error_exit:
     if (mcpp_debug & MEMORY)
         print_heap();
     if (errors > 0) {
-        mcpp_fprintf( ERR, "%d error%s in preprocessor.\n",
+        mcpp_fprintf( MCPP_ERR, "%d error%s in preprocessor.\n",
                 errors, (errors == 1) ? "" : "s");
         return  IO_ERROR;
     }
@@ -490,7 +490,7 @@ static void mcpp_main( void)
                 newlines++;                 /* Count it, too.       */
             } else if (c == '\n') {         /* Blank line           */
                 if (keep_comments)
-                    mcpp_fputc( '\n', OUT); /* May flush comments   */
+                    mcpp_fputc( '\n', MCPP_OUT); /* May flush comments   */
                 else
                     newlines++;             /* Wait for a token     */
             } else {
@@ -513,12 +513,12 @@ static void mcpp_main( void)
                 sharp( NULL, 0);            /* Output # line number */
                 if (keep_spaces && src_col) {
                     while (src_col--)       /* Adjust columns       */
-                        mcpp_fputc( ' ', OUT);
+                        mcpp_fputc( ' ', MCPP_OUT);
                     src_col = 0;
                 }
             } else {                        /* If just a few, stuff */
                 while (newlines-- > 0)      /* them out ourselves   */
-                    mcpp_fputc('\n', OUT);
+                    mcpp_fputc('\n', MCPP_OUT);
             }
         }
 
@@ -787,6 +787,6 @@ static void put_a_line(
         *++out_p = '\n';
         *++out_p = EOS;
     }
-    if (mcpp_fputs( out, OUT) == EOF)
+    if (mcpp_fputs( out, MCPP_OUT) == EOF)
         cfatal( "File write error", NULL, 0L, NULL);        /* _F_  */
 }

@@ -143,9 +143,12 @@ void    mcpp_use_mem_buffers(
     use_mem_buffers = tf ? TRUE : FALSE;
 
     for (i = 0; i < MCPP_NUM_OUTDEST; ++i) {
-        if (mem_buffers[ i].buffer)
+        if (mem_buffers[i].buffer)
+        {
             /* Free previously allocated memory buffer  */
-            free( mem_buffers[ i].buffer);
+            free(mem_buffers[i].buffer);
+            mem_buffers[i].buffer = NULL;
+        }
         if (use_mem_buffers) {
             /* Output to memory buffers instead of files    */
             mem_buffers[ i].buffer = NULL;
